@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "AI 娘星穹抽奖台 · 本地 B 站直连桥接",
+  "version": "1.0.0",
+  "description": "仅在本地浏览器转发 whitecarp.github.io/ai-girl-lottery 与 B 站公开评论接口请求（0第三方服务器，不上传Cookie）",
+  "permissions": [],
+  "host_permissions": [
+    "https://api.bilibili.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://whitecarp.github.io/ai-girl-lottery/*",
+        "http://127.0.0.1:*/*",
+        "http://localhost:*/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
