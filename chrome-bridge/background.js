@@ -70,24 +70,31 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
         const d = res.data || {};
         const replies = d.replies || [];
-        for (const c of replies) {
-          if (seenRpid.has(c.rpid)) continue;
-          seenRpid.add(c.rpid);
-          const pics = (c.content?.pictures || [])
+        const pushReply = (item, isSub, parentId) => {
+          if (!item || seenRpid.has(item.rpid)) return;
+          seenRpid.add(item.rpid);
+          const pics = (item.content?.pictures || [])
             .map((p) => String(p?.img_src || '').replace(/^http:\/\//i, 'https://'))
             .filter(Boolean);
           all.push({
-            rpid: c.rpid,
-            uid: c.member?.mid || 0,
-            uname: c.member?.uname || '',
-            avatar: String(c.member?.avatar || '').replace(/^http:\/\//i, 'https://'),
-            level: c.member?.level_info?.current_level || 0,
-            ctime: c.ctime || 0,
-            date: new Date((c.ctime || 0) * 1000).toLocaleString('zh-CN', { hour12: false }),
-            content: c.content?.message || '',
+            rpid: item.rpid,
+            parent: parentId || 0,
+            uid: item.member?.mid || 0,
+            uname: item.member?.uname || '',
+            avatar: String(item.member?.avatar || '').replace(/^http:\/\//i, 'https://'),
+            level: item.member?.level_info?.current_level || 0,
+            ctime: item.ctime || 0,
+            date: new Date((item.ctime || 0) * 1000).toLocaleString('zh-CN', { hour12: false }),
+            content: item.content?.message || '',
             pictures: pics,
-            isReply: false,
+            isReply: isSub,
           });
+        };
+        for (const c of replies) {
+          pushReply(c, false, 0);
+          for (const sub of c.replies || []) {
+            pushReply(sub, true, c.rpid);
+          }
         }
         if (sender.tab?.id) {
           chrome.tabs.sendMessage(sender.tab.id, {

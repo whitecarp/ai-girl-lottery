@@ -144,27 +144,34 @@ async function handleCommentsApi(url, env) {
       const d = data.data || {};
       totalCount = d.cursor?.all_count || totalCount;
       const replies = d.replies || [];
-      for (const c of replies) {
-        if (seen.has(c.rpid)) continue;
-        seen.add(c.rpid);
-        const pics = (c.content?.pictures || [])
+      const pushReply = (item, isSub, parentId) => {
+        if (!item || seen.has(item.rpid)) return;
+        seen.add(item.rpid);
+        const pics = (item.content?.pictures || [])
           .map((p) => String(p?.img_src || '').replace(/^http:\/\//i, 'https://'))
           .filter(Boolean);
         all.push({
-          rpid: c.rpid,
-          uid: c.member?.mid || 0,
-          uname: c.member?.uname || '',
-          avatar: String(c.member?.avatar || '').replace(/^http:\/\//i, 'https://'),
-          level: c.member?.level_info?.current_level || 0,
-          ctime: c.ctime || 0,
-          date: new Date((c.ctime || 0) * 1000).toLocaleString('zh-CN', {
+          rpid: item.rpid,
+          parent: parentId || 0,
+          uid: item.member?.mid || 0,
+          uname: item.member?.uname || '',
+          avatar: String(item.member?.avatar || '').replace(/^http:\/\//i, 'https://'),
+          level: item.member?.level_info?.current_level || 0,
+          ctime: item.ctime || 0,
+          date: new Date((item.ctime || 0) * 1000).toLocaleString('zh-CN', {
             hour12: false,
             timeZone: 'Asia/Shanghai',
           }),
-          content: c.content?.message || '',
+          content: item.content?.message || '',
           pictures: pics,
-          isReply: false,
+          isReply: isSub,
         });
+      };
+      for (const c of replies) {
+        pushReply(c, false, 0);
+        for (const sub of c.replies || []) {
+          pushReply(sub, true, c.rpid);
+        }
       }
       if (!d.cursor || d.cursor.is_end || replies.length === 0) break;
       next = d.cursor.next || 0;
