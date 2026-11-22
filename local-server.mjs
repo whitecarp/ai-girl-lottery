@@ -2,7 +2,7 @@
 /**
  * Zero-dependency local HTTP server for AI Girl Lottery.
  * Serves static site files AND exposes GET /api/comments?input=<BV|URL>
- * using the exact same contract as worker.js.
+ * using the user's local residential IP (bypasses Bilibili cloud-IP -412 blocks).
  */
 import http from 'node:http';
 import fs from 'node:fs';
@@ -11,6 +11,11 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8788);
+
+const XOR_CODE = 23442827791579n;
+const MASK_CODE = 2251799813685247n;
+const BASE = 58n;
+const ALPHABET = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf';
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -25,9 +30,11 @@ const MIME = {
 };
 
 const BILI_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
   Referer: 'https://www.bilibili.com/',
   Accept: 'application/json, text/plain, */*',
+  'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
 };
 
 const CORS_HEADERS = {
@@ -37,6 +44,21 @@ const CORS_HEADERS = {
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function bv2av(bvid) {
+  if (!bvid || !/^BV1[0-9A-Za-z]{9}$/.test(bvid)) return null;
+  const b = bvid.split('');
+  [b[3], b[9]] = [b[9], b[3]];
+  [b[4], b[7]] = [b[7], b[4]];
+  b.splice(0, 3);
+  let tmp = 0n;
+  for (const ch of b) {
+    const idx = ALPHABET.indexOf(ch);
+    if (idx < 0) return null;
+    tmp = tmp * BASE + BigInt(idx);
+  }
+  return Number((tmp & MASK_CODE) ^ XOR_CODE);
+}
 
 function sendJson(res, status, obj) {
   res.writeHead(status, {
@@ -57,43 +79,41 @@ async function resolveVideoInfo(rawInput) {
     } catch (_) {}
   }
 
+  let bvid = '';
+  let aid = null;
+  let title = '';
+  let owner = '';
+
   const bvMatch = text.match(/(BV[0-9A-Za-z]{8,14})/);
   if (bvMatch) {
-    const viewRes = await fetch(
-      `https://api.bilibili.com/x/web-interface/view?bvid=${encodeURIComponent(bvMatch[1])}`,
-      { headers: BILI_HEADERS }
-    );
-    const view = await viewRes.json();
-    if (view.code !== 0 || !view.data?.aid) {
-      throw new Error(`获取视频信息失败 (${view.code}: ${view.message || 'unknown'})`);
+    bvid = bvMatch[1];
+    aid = bv2av(bvid);
+  } else {
+    const avMatch = text.match(/(?:^|[^A-Za-z0-9])av(\d+)/i) || text.match(/^(\d{4,})$/);
+    if (avMatch) {
+      aid = Number(avMatch[1]);
     }
-    return {
-      bvid: view.data.bvid || bvMatch[1],
-      aid: view.data.aid,
-      title: view.data.title || '',
-      owner: view.data.owner?.name || '',
-    };
   }
 
-  const avMatch = text.match(/(?:^|[^A-Za-z0-9])av(\d+)/i) || text.match(/^(\d{4,})$/);
-  if (avMatch) {
-    const viewRes = await fetch(
-      `https://api.bilibili.com/x/web-interface/view?aid=${encodeURIComponent(avMatch[1])}`,
-      { headers: BILI_HEADERS }
-    );
-    const view = await viewRes.json();
-    if (view.code !== 0 || !view.data?.aid) {
-      throw new Error(`获取视频信息失败 (${view.code}: ${view.message || 'unknown'})`);
-    }
-    return {
-      bvid: view.data.bvid || '',
-      aid: view.data.aid,
-      title: view.data.title || '',
-      owner: view.data.owner?.name || '',
-    };
+  if (!aid) {
+    throw new Error('请填写合法的 BV 号、av 号或 B 站视频链接');
   }
 
-  throw new Error('请填写合法的 BV 号、av 号或 B 站视频链接');
+  try {
+    const query = bvid ? `bvid=${encodeURIComponent(bvid)}` : `aid=${encodeURIComponent(aid)}`;
+    const viewRes = await fetch(`https://api.bilibili.com/x/web-interface/view?${query}`, { headers: BILI_HEADERS });
+    if (viewRes.ok) {
+      const view = await viewRes.json();
+      if (view && view.code === 0 && view.data) {
+        bvid = view.data.bvid || bvid;
+        aid = view.data.aid || aid;
+        title = view.data.title || '';
+        owner = view.data.owner?.name || '';
+      }
+    }
+  } catch (_) {}
+
+  return { bvid, aid, title, owner };
 }
 
 async function handleApiComments(reqUrl, res) {
@@ -150,7 +170,7 @@ async function handleApiComments(reqUrl, res) {
       ok: true,
       bvid: info.bvid,
       aid: info.aid,
-      title: info.title,
+      title: info.title || info.bvid || `av${info.aid}`,
       owner: info.owner,
       totalCount,
       totalFetched: all.length,
