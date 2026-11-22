@@ -26,4 +26,4 @@ node local-server.mjs
 3. 回到网页输入 BV 号点「✦ 开始抽奖」即可自动拉取并开奖。
 
 ## 12 位 AI 娘完整名单（第一期 · Issue 01）
-`01 鲸鱼娘` · `02 Claude 娘` · `03 GPT 娘` · `04 Gemini 娘` · `05 Grok 娘` · `06 Qwen 娘` · `07 Kimi 娘` · `08 GLM 娘` · `09 豆包娘` · `10 Mistral 娘` · `11 Llama 娘` · `12 Suno 娘`
+`01 鲸鱼娘` · `02 Claude 娘` · `03 GPT 娘` · `04 Gemini 娘` · `05 Grok 娘` · `06 Qwen 娘` · `07 Kimi 娘` · `08 Cursor 娘` · `09 豆包娘` · `10 Mistral 娘` · `11 Llama 娘` · `12 Suno 娘`
