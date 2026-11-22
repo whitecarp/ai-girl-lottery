@@ -1,15 +1,29 @@
-# AI 娘星穹开奖台 · B 站视频评论直显抽奖工具
+# AI 娘星穹抽奖台 · AI Girl Bilibili Lottery
 
-在线使用地址：**https://whitecarp.github.io/ai-girl-lottery/**
+极简 B 站粉丝抽奖工具：**输入 BV 号 / 视频链接 → 点击「开始抽奖」**，直接由 GPT 娘（及第一期 12 位 AI 娘）主持开奖，同屏直接放大显示**中奖者完整评论原文 + 评论晒图（AI 娘票根）**。
 
-## 特色功能
-- **12 位 AI 娘星穹舞台主持**：支持切换 12 款第一期 AI 娘（默认 **03 GPT 娘**），启动开奖瞬间切换**烫金觉醒形态**陪你开奖。
-- **开奖直显评论 + 票根大图**：抽中后同屏直接展示中奖者的头像、UID、等级、完整评论正文，以及附带的所有评论配图 / AI 娘票根高清大图（支持点击放大核验与一键跳转原评论楼层）。
-- **防阿 B 吞评规则过滤**：内置「仅保留带图评论」「同一 UID 去重」「仅一级评论」「最低等级」「截止时间」「不合条件一键作废补抽」等完整过滤与公正 `crypto.getRandomValues` 随机抽选。
-- **零服务器、零 Cookie 泄露**：支持 **一键抓评书签 / F12 控制台脚本** 在你本地 B 站页面抓取导出 `bili_comments_BVxxx.json` 后拖入本页开抽；亦可使用仓库内 `chrome-bridge/` 极简 MV3 扩展实现填 BV 号一键直连拉取。
+## 为什么纯 GitHub 静态页不能直接抓？怎么变成真正「输入 BV 号直接抽」？
 
-## 快速开奖步骤
-1. 打开 **https://whitecarp.github.io/ai-girl-lottery/**（可先点「✨ 加载演示数据试抽」体验界面）。
-2. 点「📥 导入真实 B 站评论」，将「⭐ AI娘抓评器」拖到浏览器书签栏（或复制 F12 控制台脚本）。
-3. 在你登录的 B 站抽奖视频页点一次书签（自动翻页抓全量评论 + 附图并下载 `bili_comments_BVxxx.json`）。
-4. 回到抽奖台拖入 JSON，核对过滤开关（「仅保留带图评论」默认开启），点击「✦ 启动星穹开奖」！
+GitHub Pages 只有纯静态文件，浏览器出于安全限制无法直接跨域调用 `https://api.bilibili.com/...`（扩展直接请求若携带 `Origin: chrome-extension://` 也会被 B 站拦截返回 `412`）。
+
+本仓库同时提供三种开箱即用方案（均**无需上传任何 B 站 Cookie**）：
+
+### 方案 A（最省心 · 推荐）：一键部署到 Cloudflare Workers
+> 注意：**Cloudflare Pages** 只是静态页，但 **Cloudflare Workers** 可以把前端网页 + 免 Cookie 的 `/api/comments` 接口一起托管（免费版每天 10 万次请求）。
+
+1. 本仓库已内置 [`worker.js`](./worker.js) 与 [`wrangler.jsonc`](./wrangler.jsonc)。
+2. 部署一次后，直接打开你自己的 `https://ai-girl-lottery.<子域>.workers.dev`，任何人打开就能直接**贴 BV 号/链接一键开抽**；也可通过 `?api=https://...` 或右上角「⚙ 筛选」绑定到 GitHub Pages。
+
+### 方案 B（本地直接运行零依赖 Node 服务）
+```bash
+node local-server.mjs
+```
+浏览器打开 `http://127.0.0.1:8788` 即可直接输入任意 BV 号 / 链接实时拉取评论开奖。
+
+### 方案 C（本地 Chrome/Edge 扩展直连 · 已修复 412）
+1. 打开 `chrome://extensions` 或 `edge://extensions`，开启「开发者模式」。
+2. 点击「加载已解压的扩展程序」，选择仓库内的 `chrome-bridge/` 文件夹（如果之前装过旧版，点一下刷新重载，新版通过 `rules.json` 移除了触发 `412` 的扩展 Origin 头）。
+3. 回到网页输入 BV 号点「✦ 开始抽奖」即可自动拉取并开奖。
+
+## 12 位 AI 娘完整名单（第一期 · Issue 01）
+`01 鲸鱼娘` · `02 Claude 娘` · `03 GPT 娘` · `04 Gemini 娘` · `05 Grok 娘` · `06 Qwen 娘` · `07 Kimi 娘` · `08 GLM 娘` · `09 豆包娘` · `10 Mistral 娘` · `11 Llama 娘` · `12 Suno 娘`

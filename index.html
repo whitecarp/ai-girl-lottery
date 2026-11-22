@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="referrer" content="no-referrer" />
-  <title>AI 娘星穹抽奖台 · 40,000 粉 Codex Pro 100 开奖仪式</title>
+  <title>AI 娘星穹抽奖台 · 40,000 粉 Codex Pro 100</title>
   <link rel="icon" type="image/webp" href="./assets/icons/crest_iron.webp" />
   <link rel="stylesheet" href="./style.css" />
 </head>
@@ -12,187 +12,183 @@
   <canvas id="star-canvas" aria-hidden="true"></canvas>
 
   <div class="app-shell">
-    <!-- Top Header -->
+    <!-- Minimal Header -->
     <header class="top-bar">
       <div class="brand-group">
         <img class="brand-crest" src="./assets/icons/crest_iron.webp" alt="Crest" />
-        <div>
-          <div class="brand-kicker">ASTRAL HONOR LOTTERY · ISSUE 01</div>
-          <h1 class="brand-title">AI 娘星穹开奖台 <span class="badge-40k">40,000 粉 · CODEX PRO 100</span></h1>
+        <div class="brand-text">
+          <h1 class="brand-title">AI 娘星穹抽奖台 <span class="badge-40k">40,000 粉 · CODEX PRO 100</span></h1>
         </div>
       </div>
 
       <div class="top-actions">
-        <button id="btn-load-demo" class="btn btn-emerald" type="button">✨ 加载演示数据试抽</button>
-        <button id="btn-open-import" class="btn btn-gold" type="button">📥 导入真实 B 站评论</button>
-        <button id="btn-toggle-sfx" class="btn btn-ghost" type="button" aria-pressed="true">🔊 音效：开</button>
-        <a class="btn btn-ghost" href="https://github.com/whitecarp/ai-girl-lottery" target="_blank" rel="noopener">GitHub 源码</a>
-      </div>
-    </header>
-
-    <!-- Main 2-Column Stage -->
-    <main class="stage-grid">
-      <!-- Left: AI Girl MC Stage -->
-      <section class="panel mc-panel" aria-label="AI 娘主持舞台">
-        <div class="mc-header">
-          <span id="mc-form-badge" class="mc-badge">● 基础关注形态</span>
-          <span id="mc-char-name" class="mc-name">03 · GPT 娘（白龙）</span>
-        </div>
-
-        <div id="mc-frame" class="mc-frame">
-          <div class="mc-aura" aria-hidden="true"></div>
-          <img id="mc-portrait" class="mc-portrait" src="./assets/cards/c03_base.webp" alt="GPT 娘主持立绘" />
-          <div class="mc-dialogue">
-            <div class="mc-dlg-who" id="mc-dlg-who">GPT 娘 · 本期主持</div>
-            <p id="mc-speech">四万粉快乐～先点右上角「加载演示数据」试试手气，或点「导入真实 B 站评论」开启正式开奖，本小姐会亲眼监督公平哦。</p>
-          </div>
-        </div>
-
-        <div class="mc-controls">
-          <div class="mc-control-row">
-            <label for="mc-select" class="ctrl-label">切换主持 AI 娘</label>
-            <button id="btn-toggle-awaken" class="btn-mini" type="button">切换觉醒形态</button>
-          </div>
-          <div id="mc-chips" class="mc-chips" role="listbox" aria-label="选择 12 位 AI 娘"></div>
-        </div>
-      </section>
-
-      <!-- Right: Controls, Funnel & Winner Spotlight -->
-      <section class="right-column">
-        <!-- Data & Filters Card -->
-        <div class="panel filter-panel">
-          <div class="source-row">
-            <div class="bvid-group">
-              <label for="input-bvid" class="ctrl-label">目标视频 BV / 链接</label>
-              <div class="bvid-input-wrap">
-                <input id="input-bvid" type="text" placeholder="粘贴视频 BV 号或链接，如 BV1jb421p7zC" />
-                <button id="btn-bridge-fetch" class="btn btn-gold" type="button" title="需配合仓库内置本地浏览器桥接扩展；未装可点右侧导入书签/JSON">⚡ 桥接直拉</button>
-                <button id="btn-open-import-inline" class="btn btn-ghost" type="button">📋 书签抓评 / 拖入 JSON</button>
-              </div>
-              <div id="bridge-status" class="bridge-status">提示：点「导入真实 B 站评论」可用免安装抓评书签/控制台脚本，0 服务器不泄 Cookie，自动抓取完整评论与晒图。</div>
-            </div>
-          </div>
-
-          <div class="funnel-strip">
-            <div class="stat-pill"><span class="stat-k">已载入评论</span><strong id="stat-raw" class="stat-v">0</strong></div>
-            <div class="stat-pill"><span class="stat-k">含图评论</span><strong id="stat-pics" class="stat-v emerald">0</strong></div>
-            <div class="stat-pill"><span class="stat-k">去重后有效奖池</span><strong id="stat-eligible" class="stat-v gold">0</strong></div>
-            <div class="stat-pill"><span class="stat-k">已开奖/候补</span><strong id="stat-won" class="stat-v">0</strong></div>
-          </div>
-
-          <div class="filter-grid">
-            <label class="chk-pill highlight">
+        <button id="btn-load-demo" class="btn btn-soft" type="button">✨ 试抽演示</button>
+        <button id="btn-toggle-sfx" class="btn btn-icon" type="button" aria-pressed="true" title="开关音效">🔊</button>
+        <div class="popover-anchor">
+          <button id="btn-toggle-filter" class="btn btn-ghost" type="button" aria-expanded="false">⚙ 筛选</button>
+          <div id="filter-popover" class="filter-popover hidden" role="dialog" aria-label="抽奖筛选与接口设置">
+            <div class="pop-title">抽奖条件</div>
+            <label class="pop-chk">
               <input id="chk-pics-only" type="checkbox" checked />
-              <span>仅保留带图评论（防吞评 · 晒票根/配图）</span>
+              <span>仅抽带图评论（防吞评 · 晒票根/配图）</span>
             </label>
-            <label class="chk-pill">
+            <label class="pop-chk">
               <input id="chk-dedupe" type="checkbox" checked />
               <span>同一 UID 去重（防刷屏）</span>
             </label>
-            <label class="chk-pill">
+            <label class="pop-chk">
               <input id="chk-root-only" type="checkbox" checked />
               <span>仅一级评论（不含楼中楼）</span>
             </label>
-          </div>
 
-          <div class="filter-inputs">
-            <div class="f-item">
-              <label for="sel-level">最低等级</label>
-              <select id="sel-level">
-                <option value="0">不限等级</option>
-                <option value="2">Lv2 及以上</option>
-                <option value="3">Lv3 及以上</option>
-                <option value="4">Lv4 及以上</option>
-              </select>
+            <div class="pop-grid">
+              <label class="pop-field">
+                <span>抽取人数</span>
+                <input id="input-draw-count" type="number" min="1" max="10" value="1" />
+              </label>
+              <label class="pop-field">
+                <span>最低等级</span>
+                <select id="sel-level">
+                  <option value="0">不限等级</option>
+                  <option value="2">Lv2+</option>
+                  <option value="3">Lv3+</option>
+                  <option value="4">Lv4+</option>
+                </select>
+              </label>
+              <label class="pop-field full">
+                <span>评论关键词（留空不限）</span>
+                <input id="input-keyword" type="text" placeholder="可选过滤关键词" />
+              </label>
+              <label class="pop-field full">
+                <span>截止时间（留空不限）</span>
+                <input id="input-cutoff" type="datetime-local" />
+              </label>
+              <label class="pop-field full">
+                <span>自定义 Worker 后端地址（可选）</span>
+                <input id="input-api-base" type="text" placeholder="如 https://ai-girl-lottery.xxx.workers.dev" />
+              </label>
             </div>
-            <div class="f-item">
-              <label for="input-keyword">评论关键词</label>
-              <input id="input-keyword" type="text" placeholder="可选，留空不限制" />
-            </div>
-            <div class="f-item">
-              <label for="input-cutoff">截止时间（可选）</label>
-              <input id="input-cutoff" type="datetime-local" />
-            </div>
-            <div class="f-item narrow">
-              <label for="input-draw-count">抽取人数</label>
-              <input id="input-draw-count" type="number" min="1" max="10" value="1" />
+
+            <div class="pop-actions">
+              <button id="btn-open-pool-pop" class="btn btn-ghost btn-sm" type="button">👥 查看候选池 (<span id="pop-pool-count">0</span>)</button>
+              <button id="btn-open-import-pop" class="btn btn-ghost btn-sm" type="button">📥 导入 JSON / 抓评</button>
             </div>
           </div>
+        </div>
+      </div>
+    </header>
 
-          <div class="draw-bar">
-            <button id="btn-draw" class="btn-draw" type="button" disabled>
-              <span class="draw-spark">✦</span>
-              <span id="btn-draw-label">启动星穹开奖仪式</span>
-            </button>
-            <button id="btn-redraw-reset" class="btn btn-ghost" type="button">清空本轮开奖结果</button>
+    <!-- Hero One-Line BV/URL Drawer -->
+    <section class="hero-bar panel" aria-label="输入 BV 或链接一键抽奖">
+      <div class="hero-input-row">
+        <input
+          id="input-bvid"
+          class="hero-input"
+          type="text"
+          autocomplete="off"
+          placeholder="粘贴 B 站视频链接或 BV 号（例如 BV1Eaxt6LEhb）"
+        />
+        <button id="btn-go" class="btn-go" type="button">
+          <span>✦</span>
+          <span id="btn-go-label">开始抽奖</span>
+        </button>
+      </div>
+      <div class="hero-status-row">
+        <span id="status-bar" class="status-text">输入 BV 号或 B 站链接，点击「开始抽奖」直接拉取评论并开奖（或点右上角「试抽演示」）</span>
+        <div class="status-tools">
+          <button id="btn-refresh-comments" class="tiny-link hidden" type="button">↻ 刷新评论</button>
+          <button id="btn-toggle-pool" class="tiny-link hidden" type="button">候选池 (<span id="pool-count">0</span>)</button>
+          <button id="btn-reset-winners" class="tiny-link hidden" type="button">清空重抽</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main 2-Column Stage (Fits 100% inside 1440x900) -->
+    <main class="stage-grid">
+      <!-- Left: AI Girl Host Stage -->
+      <section class="panel mc-panel" aria-label="AI 娘主持">
+        <div id="mc-frame" class="mc-frame">
+          <div class="mc-aura" aria-hidden="true"></div>
+          <span id="mc-form-badge" class="mc-badge">● 基础形态</span>
+          <img id="mc-portrait" class="mc-portrait" src="./assets/cards/c03_base.webp" alt="GPT 娘主持立绘" />
+          <div class="mc-dialogue">
+            <div class="mc-dlg-who" id="mc-dlg-who">03 · GPT 娘</div>
+            <p id="mc-speech">四万粉快乐～把视频 BV 号或链接贴到上方，点「开始抽奖」就由我来当场揭晓！</p>
           </div>
         </div>
 
-        <!-- Winner Spotlight Stage -->
-        <div id="spotlight-panel" class="panel spotlight-panel">
-          <div class="spot-head">
-            <div class="spot-title-wrap">
-              <span class="spot-kicker">WINNER SPOTLIGHT · 开奖直显台</span>
-              <h2 id="spot-heading" class="spot-heading">等待加载奖池……</h2>
-            </div>
-            <span id="rng-proof" class="rng-proof">CSPRNG: window.crypto.getRandomValues</span>
-          </div>
+        <div class="mc-footer">
+          <select id="mc-select" aria-label="切换 12 位 AI 娘主持"></select>
+          <button id="btn-toggle-awaken" class="btn-mini" type="button">切换觉醒</button>
+        </div>
+      </section>
 
-          <div id="spotlight-body" class="spotlight-body">
-            <div class="empty-stage">
-              <div class="empty-icon">✦</div>
-              <div class="empty-title">准备就绪：抽中即同屏放大显示完整评论 + AI 娘票根大图</div>
-              <div class="empty-sub">支持一键加载 18 条真实感演示评论直接体验，或拖入由 B 站视频页导出的 <code>comments.json</code>。</div>
+      <!-- Right: Winner Spotlight Stage -->
+      <section id="spotlight-panel" class="panel spotlight-panel">
+        <div class="spot-head">
+          <div>
+            <span class="spot-kicker">WINNER SPOTLIGHT · 开奖直显台</span>
+            <h2 id="spot-heading" class="spot-heading">等待开奖……</h2>
+          </div>
+          <span id="rng-proof" class="rng-proof">CSPRNG · 公平随机</span>
+        </div>
+
+        <div id="spotlight-body" class="spotlight-body">
+          <div class="empty-stage">
+            <div class="empty-icon">✦</div>
+            <div class="empty-title">输 BV 号 / 链接，一点直接抽出中奖评论与票根大图</div>
+            <div class="empty-sub">默认只抽带图一楼防吞评并按 UID 去重；不强制转发，中奖者评论文字与配图同屏直显。</div>
+            <div class="empty-cta">
+              <button id="btn-empty-demo" class="btn btn-soft" type="button">✨ 先用演示数据试抽一下</button>
+              <button id="btn-empty-import" class="btn btn-ghost" type="button">📥 导入 JSON / 本地抓评</button>
             </div>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- Bottom Candidate Pool + Audit Log + 12 AI Girls Ribbon -->
-    <section class="panel pool-panel">
+    <!-- Collapsible Candidate Pool (hidden until opened) -->
+    <section id="pool-panel" class="panel pool-panel hidden">
       <div class="pool-head">
-        <div>
-          <span class="spot-kicker">ELIGIBLE CANDIDATES &amp; AUDIT LOG</span>
-          <h3 class="pool-title">有效候选奖池（<span id="pool-count">0</span> 人）</h3>
-        </div>
+        <div class="pool-title">有效候选奖池（<span id="pool-count-head">0</span> 人）</div>
         <div class="pool-tools">
-          <input id="input-search-pool" type="search" placeholder="搜索昵称 / UID / 评论内容..." />
-          <button id="btn-toggle-pool" class="btn btn-ghost" type="button">展开/收起列表</button>
+          <input id="input-search-pool" type="search" placeholder="搜索昵称 / UID / 评论..." />
+          <button id="btn-close-pool" class="btn btn-ghost btn-sm" type="button">收起</button>
         </div>
       </div>
       <div id="pool-list" class="pool-list"></div>
     </section>
 
-    <section class="panel gallery-panel" aria-label="第一期 12 位觉醒 AI 娘">
-      <div class="gallery-head">
-        <span>ISSUE 01 · XII AWAKENED AI GIRLS · 第一期 12 款觉醒烫金立绘一览</span>
-      </div>
+    <!-- Compact 12 AI Girls Strip Below Fold -->
+    <section class="panel gallery-panel" aria-label="第一期 12 位 AI 娘">
+      <div class="gallery-head">ISSUE 01 · XII AI GIRLS（点击切换主持）</div>
       <div id="ribbon-12" class="ribbon-12"></div>
     </section>
   </div>
 
-  <!-- Import Modal (Grabber Script + Bookmarklet + File Drop/Paste) -->
-  <div id="import-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
-    <div class="modal-backdrop" data-close-modal="import-modal"></div>
+  <!-- Clean 2-Option Connection / Import Modal -->
+  <div id="connect-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="connect-modal-title">
+    <div class="modal-backdrop" data-close-modal="connect-modal"></div>
     <div class="modal-card">
       <div class="modal-head">
         <div>
-          <div class="spot-kicker">ZERO-SERVER BILIBILI COMMENT GRABBER</div>
-          <h2 id="import-modal-title">导入真实 B 站视频评论（含完整评论图 · 0 Cookie 泄露）</h2>
+          <div class="spot-kicker">DIRECT FETCH &amp; JSON IMPORT</div>
+          <h2 id="connect-modal-title">如何直连 B 站抓评开奖</h2>
         </div>
-        <button class="modal-close" type="button" data-close-modal="import-modal">✕</button>
+        <button class="modal-close" type="button" data-close-modal="connect-modal">✕</button>
       </div>
+
+      <p class="modal-desc">纯静态 GitHub 网页无法直接跨域请求 <code>api.bilibili.com</code>。任选以下一种方式即可直接输入 BV 号开抽（均无需 B 站 Cookie）：</p>
 
       <div class="import-steps">
         <div class="imp-step">
           <div class="imp-num">1</div>
           <div class="imp-body">
-            <h3>方式 A（最推荐免装插件）：在 B 站视频页运行一键抓评脚本</h3>
-            <p>打开你的抽奖视频页（保持登录状态）→ 把下方按钮拖到浏览器书签栏，点一下即可自动翻页抓取全部评论与配图；或者按 <code>F12</code> 打开控制台，点击「复制抓评脚本」粘贴回车运行。</p>
+            <h3>方式一（纯网页免装扩展）：填入 Cloudflare Worker 地址</h3>
+            <p>仓库已自带免 Cookie 的 <code>worker.js</code> + <code>wrangler.jsonc</code>，部署到免费 Cloudflare Worker 后把地址填在下方即可永久输入 BV 直接开抽：</p>
             <div class="imp-btn-row">
-              <a id="bookmarklet-link" class="btn btn-gold" href="#">⭐ 拖我到书签栏：AI娘抓评器</a>
-              <button id="btn-copy-console" class="btn btn-emerald" type="button">📋 一键复制 F12 控制台抓评脚本</button>
+              <input id="modal-api-base" class="modal-api-input" type="text" placeholder="https://ai-girl-lottery.<你的子域>.workers.dev" />
+              <button id="btn-save-api-go" class="btn btn-gold" type="button">保存并立即拉取开奖</button>
             </div>
           </div>
         </div>
@@ -200,31 +196,24 @@
         <div class="imp-step">
           <div class="imp-num">2</div>
           <div class="imp-body">
-            <h3>拖入导出的 JSON 文件，或直接 Ctrl+V 粘贴</h3>
+            <h3>方式二（本地免服务器）：Chrome/Edge 扩展 或 书签导出 JSON</h3>
+            <p>把仓库里的 <code>chrome-bridge/</code> 文件夹加载到浏览器扩展（已修复 412 拦截，旧版请点刷新重载），即可在当前网页直接输 BV 号拉取；或者拖入抓评导出的 <code>comments.json</code>：</p>
+            <div class="imp-btn-row">
+              <a id="bookmarklet-link" class="btn btn-gold" href="#">⭐ 拖到书签栏：一键抓评</a>
+              <button id="btn-copy-console" class="btn btn-ghost" type="button">📋 复制 F12 抓评脚本</button>
+            </div>
             <div id="drop-zone" class="drop-zone">
               <input id="file-input" type="file" accept=".json,application/json" hidden />
-              <p>将 <code>bili_comments_BVxxx.json</code> 拖到这里，或 <button id="btn-pick-file" class="link-btn" type="button">点击选择本地 JSON 文件</button></p>
+              <span>拖入 <code>bili_comments_BVxxx.json</code> 到此，或 <button id="btn-pick-file" class="link-btn" type="button">选择 JSON 文件</button></span>
             </div>
-            <textarea id="paste-json" rows="4" placeholder='或直接把剪贴板里的 JSON 粘贴到这里，点下方「解析并载入奖池」...'></textarea>
-            <div class="imp-btn-row">
-              <button id="btn-parse-paste" class="btn btn-emerald" type="button">✔ 解析并载入奖池</button>
-              <span id="import-msg" class="import-msg"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="imp-step subtle">
-          <div class="imp-num">B</div>
-          <div class="imp-body">
-            <h3>方式 B（进阶免导出）：加载仓库自带的 <code>chrome-bridge/</code> 本地桥接扩展</h3>
-            <p>在仓库 <a href="https://github.com/whitecarp/ai-girl-lottery" target="_blank" rel="noopener">whitecarp/ai-girl-lottery</a> 下载 <code>chrome-bridge</code> 文件夹，Chrome/Edge 开启「开发者模式 → 加载已解压的扩展程序」，回到本页直接填 BV 号点「⚡ 桥接直拉」即可。</p>
+            <div id="import-msg" class="import-msg"></div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Image Lightbox Modal -->
+  <!-- Lightbox Modal -->
   <div id="lightbox-modal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-backdrop" data-close-modal="lightbox-modal"></div>
     <div class="lightbox-card">
